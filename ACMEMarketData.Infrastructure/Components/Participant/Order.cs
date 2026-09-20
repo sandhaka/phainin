@@ -7,6 +7,7 @@ public sealed class Order
     
     public ParticipantActionType ActionType { get; init; }
     public Guid ParticipantId { get; init; }
+    public required string VenueCode { get; init; }
     public required string Instrument { get; init; }
     public decimal Price { get; init; }
     public long OriginalQuantity { get; init; }
@@ -18,6 +19,7 @@ public sealed class Order
     public bool Validate()
     {
         var valid = !Guid.Empty.Equals(OrderId);
+        valid = valid && !string.IsNullOrWhiteSpace(VenueCode);
         valid = valid && !string.IsNullOrEmpty(Instrument);
         valid = valid && !Guid.Empty.Equals(ParticipantId);
         valid = valid && Price > 0;
@@ -25,4 +27,7 @@ public sealed class Order
         valid = valid && RemainingQuantity >= 0 && RemainingQuantity <= OriginalQuantity;
         return valid;
     }
+
+    public override string ToString() =>
+        $"{OrderId}, {VenueCode}, {ActionType}, {Instrument}, {Price}, {OriginalQuantity}, {RemainingQuantity}, {State}";
 }

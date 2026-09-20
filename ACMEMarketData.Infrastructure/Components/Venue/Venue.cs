@@ -6,35 +6,44 @@ namespace ACMEMarketData.Infrastructure.Components.Venue;
 
 public class Venue
 {
-    private readonly MatchingEngine _matchingEngine;
-    private readonly OrderBook _orderBook;
-    private readonly Channel<Order> _orders;
+    private readonly string _code;
+    private readonly ChannelReader<Order> _ordersReader;
     
-    private long _nextSequenceNumber = 0;
+    // Venue core
+    private readonly MatchingEngine _matchingEngine = new MatchingEngine();
 
-    public Venue()
+    public Venue(string code, VenueOrderRouter router)
     {
-        _matchingEngine = new MatchingEngine();
-        _orderBook = new OrderBook();
+        ArgumentNullException.ThrowIfNull(code);
+        ArgumentNullException.ThrowIfNull(router);
         
-        _orders = Channel.CreateUnbounded<Order>(new UnboundedChannelOptions
-        {
-            SingleReader = true, // Sequentially dequeue
-            SingleWriter = false // Concurrent participants can submit their orders
-        });
+        _code = code;
+        _ordersReader = router.GetOrderReader(_code);
     }
 
-    public bool Submit(Order order)
+    public async Task StartAcceptingOrdersAsync(CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(order);
-        if (!order.Validate())
+        try
         {
-            order.State = OrderState.Rejected;
-            return false;
+            // CPU-intense loop
+            await foreach (var order in _ordersReader.ReadAllAsync(cancellationToken))
+            {
+                ProcessOrder(order);
+            }
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // Expected during graceful application shutdown.
+        }
+    }
+    
+    private void ProcessOrder(Order order)
+    {
+        Console.WriteLine(
+            $"Venue={_code} Sequence={order.SequenceNumber} Order={order.OrderId}");
 
-        order.SequenceNumber = Interlocked.Increment(ref _nextSequenceNumber);
-        
-        return _orders.Writer.TryWrite(order);
+        // Future:
+        // matchingEngine.Process(order);
+        // publisher.Publish(...);
     }
 }

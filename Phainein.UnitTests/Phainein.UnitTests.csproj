@@ -20,6 +20,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Phainein\Phainein.csproj" />
+      <ProjectReference Include="..\ACMEMarketData.Infrastructure\ACMEMarketData.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
