@@ -1,1 +1,0 @@
-﻿System.Console.WriteLine("MarketDataProcessor example application");
