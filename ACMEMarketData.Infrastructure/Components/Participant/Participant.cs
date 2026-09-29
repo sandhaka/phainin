@@ -21,7 +21,7 @@ public class Participant
         string instrument,
         ParticipantActionType actionType,
         decimal price,
-        long quantity)
+        int quantity)
     {
         return new Order
         {

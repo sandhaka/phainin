@@ -59,7 +59,7 @@ public sealed class MarketSimulator
         return participant.GenerateOrder(venueCode, instrument, actionType, price, quantity);
     }
 
-    private (string Instrument, ParticipantActionType ActionType, decimal Price, long Quantity) GenerateRandomOrderData(Random random)
+    private (string Instrument, ParticipantActionType ActionType, decimal Price, int Quantity) GenerateRandomOrderData(Random random)
     {
         var instrument = _assetParameters[random.Next(_assetParameters.Count)];
         var actionType = random.Next(2) == 0
@@ -70,7 +70,7 @@ public sealed class MarketSimulator
             ? randomVolatility          // Positive volatility
             : randomVolatility * -1;    // Negative volatility
         var price = instrument.InitialPrice + (decimal) randomVolatility;
-        var quantity = random.NextInt64(_parameters.OrderSizeRange.Lower, _parameters.OrderSizeRange.Upper + 1);
+        var quantity = random.Next(_parameters.OrderSizeRange.Lower, _parameters.OrderSizeRange.Upper + 1);
 
         return (instrument.Symbol, actionType, Math.Round(price, 2) , quantity);
     }

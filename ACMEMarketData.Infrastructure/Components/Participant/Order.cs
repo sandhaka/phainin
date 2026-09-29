@@ -9,9 +9,9 @@ public sealed class Order
     public Guid ParticipantId { get; init; }
     public required string VenueCode { get; init; }
     public required string Instrument { get; init; }
-    public decimal Price { get; init; }
-    public long OriginalQuantity { get; init; }
-    public long RemainingQuantity { get; internal set; }
+    public decimal Price { get; init; } = 1;
+    public int OriginalQuantity { get; init; }
+    public int RemainingQuantity { get; internal set; }
     
     public OrderState State { get; internal set; }
     public long SequenceNumber { get; internal set; }
@@ -28,6 +28,8 @@ public sealed class Order
         return valid;
     }
 
+    public bool FulFilled => RemainingQuantity == 0;
+    
     public override string ToString() =>
         $"{OrderId}, {VenueCode}, {ActionType}, {Instrument}, {Price}, {OriginalQuantity}, {RemainingQuantity}, {State}";
 }

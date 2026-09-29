@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACMEMarketData.Infrastructu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACMEMarketData.App", "ACMEMarketData.App\ACMEMarketData.App.csproj", "{100D5196-8559-4D7A-9C81-DBFBA5A2FAB3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ACMEMarketData.Tests", "ACMEMarketData.Tests\ACMEMarketData.Tests.csproj", "{303C94AF-A6AA-48AB-B867-ECD250F49127}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{100D5196-8559-4D7A-9C81-DBFBA5A2FAB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{100D5196-8559-4D7A-9C81-DBFBA5A2FAB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{100D5196-8559-4D7A-9C81-DBFBA5A2FAB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{303C94AF-A6AA-48AB-B867-ECD250F49127}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{303C94AF-A6AA-48AB-B867-ECD250F49127}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{303C94AF-A6AA-48AB-B867-ECD250F49127}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{303C94AF-A6AA-48AB-B867-ECD250F49127}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

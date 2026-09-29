@@ -42,8 +42,6 @@ public class Venue
         Console.WriteLine(
             $"Venue={_code} Sequence={order.SequenceNumber} Order={order.OrderId}");
 
-        // Future:
-        // matchingEngine.Process(order);
-        // publisher.Publish(...);
+        // _matchingEngine.ProcessOrder(order);
     }
 }
