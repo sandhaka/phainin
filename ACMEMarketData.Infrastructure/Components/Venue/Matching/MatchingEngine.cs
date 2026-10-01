@@ -38,7 +38,7 @@ internal sealed class MatchingEngine
                     {
                         // Trades all the bid quantity, order not fulfilled
                         tradeQuantity = ask.RemainingQuantity;
-                        buy.RemainingQuantity -= buy.RemainingQuantity;
+                        buy.RemainingQuantity -= ask.RemainingQuantity;
                         
                         // Sell Order in the book closed
                         ask.RemainingQuantity = 0;

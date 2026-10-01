@@ -2,5 +2,5 @@
 
 public enum OrderState
 {
-    New, Active, PartiallyFilled, Filled, Rejected, Cancelled
+    New, Active, Rejected, Cancelled
 }

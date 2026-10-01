@@ -55,15 +55,15 @@ public sealed class MachineEngineTests
     public static TheoryData<IEnumerable<Order>, Order, bool> TestOrdersFactory()
     {
         var data = new TheoryData<IEnumerable<Order>, Order, bool>();
-        var orderBookOrders = PrepareOrderBook().ToArray();
+        var orderBookOrders = OrderBookStateFirstSet().ToArray();
 
-        foreach (var incomingOrder in PrepareIncomingOrders())
-            data.Add(orderBookOrders, incomingOrder.order, incomingOrder.shouldBeFulfilled);
+        foreach (var incomingOrder in IncomingOrdersFirstSet())
+            data.Add(orderBookOrders, incomingOrder.order, incomingOrder.shouldBeFulFilled);
             
         return data;
     }
 
-    private static IEnumerable<Order> PrepareOrderBook()
+    private static IEnumerable<Order> OrderBookStateFirstSet()
     {
         return new List<Order>
         {
@@ -97,32 +97,24 @@ public sealed class MachineEngineTests
         };
     }
 
-    private static IEnumerable<(Order order, bool shouldBeFulfilled)> PrepareIncomingOrders()
+    private static IEnumerable<(Order order, bool shouldBeFulFilled)> IncomingOrdersFirstSet()
     {
-        yield return (
-            order: new Order
-            {
-                ActionType = ParticipantActionType.Sell,
-                ParticipantId = Guid.NewGuid(),
-                VenueCode = Venue,
-                Instrument = Asset,
-                Price = 100m,
-                OriginalQuantity = 100
-            }, 
-            shouldBeFulfilled: true
-        );
-            
-        yield return (
-            order: new Order
-            {
-                ActionType = ParticipantActionType.Buy,
-                ParticipantId = Guid.NewGuid(),
-                VenueCode = Venue,
-                Instrument = Asset,
-                Price = 100m,
-                OriginalQuantity = 100
-            }, 
-            shouldBeFulfilled: false
-        );
+        yield return (order: new Order {ActionType = ParticipantActionType.Sell, ParticipantId = Guid.NewGuid(), VenueCode = Venue, Instrument = Asset, Price = 100m, OriginalQuantity = 100}, true);
+        yield return (order: new Order {ActionType = ParticipantActionType.Buy, ParticipantId = Guid.NewGuid(), VenueCode = Venue, Instrument = Asset, Price = 100m, OriginalQuantity = 100}, false );
+        yield return (order: new Order { ActionType = ParticipantActionType.Buy, ParticipantId = Guid.NewGuid(), VenueCode = Venue, Instrument = Asset, Price = 343m, OriginalQuantity = 10 }, true);
+        yield return (order: new Order { ActionType = ParticipantActionType.Sell, ParticipantId = Guid.NewGuid(), VenueCode = Venue, Instrument = Asset, Price = 341m, OriginalQuantity = 10}, false);
     }
+
+    // private static IEnumerable<Order> OrderBookStateSecondSet()
+    // { 
+    //     return []; // Start with an empty book
+    // }
+    //
+    // private static IEnumerable<(Order order, bool shouldBeFulFilled)> IncomingOrdersSecondSet()
+    // {
+    //     yield return (new Order { ActionType = ParticipantActionType.Buy, ParticipantId = Guid.NewGuid(), VenueCode = Venue, Instrument = Asset, Price = 100, OriginalQuantity = 100}, false);
+    //     yield return (new Order { ActionType = ParticipantActionType.Buy, ParticipantId = Guid.NewGuid(), VenueCode = Venue, Instrument = Asset, Price = 99, OriginalQuantity = 50}, false);
+    //     yield return (new Order { ActionType = ParticipantActionType.Sell, ParticipantId = Guid.NewGuid(), VenueCode = Venue, Instrument = Asset, Price = 101, OriginalQuantity = 30}, false);
+    //     yield return (new Order { ActionType = ParticipantActionType.Sell, ParticipantId = Guid.NewGuid(), VenueCode = Venue, Instrument = Asset, Price = 100, OriginalQuantity = 120}, false);
+    // }
 }
