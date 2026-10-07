@@ -31,7 +31,6 @@ public class Participant
             Instrument = instrument,
             Price = price,
             OriginalQuantity = quantity,
-            RemainingQuantity = quantity,
             State = OrderState.New
         };
     }

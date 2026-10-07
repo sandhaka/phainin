@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using ACMEMarketData.Infrastructure.Components.Participant;
 
 [assembly: InternalsVisibleTo("ACMEMarketData.Tests")]
@@ -18,6 +19,8 @@ internal class PriceLevels
         if (Buy.Count == 0)
             return false;
         var bestBuy = Buy.Keys.Max();
+        if (Buy[bestBuy].Count == 0)
+            return false;
         order = Buy[bestBuy].First();
         return true;
     }
@@ -27,12 +30,37 @@ internal class PriceLevels
         order = null;
         if (Sell.Count == 0)
             return false;
-        var bestSell = Sell.Keys.Min(); 
+        var bestSell = Sell.Keys.Min();
+        if (Sell[bestSell].Count == 0)
+            return false;
         order = Sell[bestSell].First();
         return true;
     }
+
+    public void RemoveBuy(Order order)
+    {
+        if (!Buy.TryGetValue(order.Price, out var v)) 
+            return;
+        
+        Buy[order.Price].Remove(order);
+        
+        if (Buy[order.Price].Count == 0)
+            Buy.Remove(order.Price);
+    }
+
+    public void RemoveSell(Order order)
+    {
+        if (!Sell.TryGetValue(order.Price, out var v)) 
+            return;
+        
+        Sell[order.Price].Remove(order);
+        
+        if (Sell[order.Price].Count == 0)
+            Sell.Remove(order.Price);
+    }
 }
 
+[DebuggerDisplay("{_internalOrderBookData.Keys}")]
 internal class OrderBook
 {
     private readonly Dictionary<string, PriceLevels> _internalOrderBookData = new();
@@ -56,9 +84,8 @@ internal class OrderBook
 
     public void RemoveBuy(Order order)
     {
-        if (!_internalOrderBookData.ContainsKey(order.Instrument) || !_internalOrderBookData[order.Instrument].Buy.ContainsKey(order.Price))
-            return;
-        _internalOrderBookData[order.Instrument].Buy[order.Price].Remove(order);
+        if(_internalOrderBookData.TryGetValue(order.Instrument, out var assetOrderBook))
+            assetOrderBook.RemoveBuy(order);
     }
 
     public void AddSell(Order order)
@@ -73,9 +100,8 @@ internal class OrderBook
 
     public void RemoveSell(Order order)
     {
-        if(!_internalOrderBookData.ContainsKey(order.Instrument) || !_internalOrderBookData[order.Instrument].Sell.ContainsKey(order.Price))
-            return;
-        _internalOrderBookData[order.Instrument].Sell[order.Price].Remove(order);
+        if(_internalOrderBookData.TryGetValue(order.Instrument, out var assetOrderBook))
+            assetOrderBook.RemoveSell(order);
     }
     
     internal bool TryGetPrices(string assetCode, out PriceLevels? pl)

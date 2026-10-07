@@ -15,6 +15,11 @@ internal sealed class MatchingEngine
     
     public void ProcessOrder(Order order)
     {
+        if (order.State != OrderState.New)
+            throw new InvalidOperationException("The order has been processed before");
+        
+        order.Open();
+        
         if (order.ActionType == ParticipantActionType.Sell)
             HandleSellOrder(order);
         if (order.ActionType == ParticipantActionType.Buy)
@@ -25,12 +30,12 @@ internal sealed class MatchingEngine
     {
         var reg = _orderBook.GetOrAdd(buy.Instrument, () => new PriceLevels());
 
-        while (!buy.FulFilled)
+        while (!buy.Fulfilled)
         {
             if (reg.TryGetBestAsk(out var ask))
             {
                 // Matching asking price
-                if (buy.Price > ask!.Price)
+                if (buy.Price >= ask!.Price)
                 {
                     int tradeQuantity = 0;
 
@@ -38,10 +43,10 @@ internal sealed class MatchingEngine
                     {
                         // Trades all the bid quantity, order not fulfilled
                         tradeQuantity = ask.RemainingQuantity;
-                        buy.RemainingQuantity -= ask.RemainingQuantity;
+                        buy.TradeQuantity(ask.RemainingQuantity);
                         
                         // Sell Order in the book closed
-                        ask.RemainingQuantity = 0;
+                        ask.TradeQuantity(ask.RemainingQuantity);
                         
                         // Remove from the book
                         _orderBook.RemoveSell(ask);
@@ -50,10 +55,10 @@ internal sealed class MatchingEngine
                     {
                         // Incoming order fulfilled
                         tradeQuantity = buy.RemainingQuantity;
-                        ask.RemainingQuantity -= buy.RemainingQuantity;
+                        ask.TradeQuantity(buy.RemainingQuantity);
                         
                         // Order closed
-                        buy.RemainingQuantity = 0;
+                        buy.TradeQuantity(buy.RemainingQuantity);
                     }
 
                     var trade = new Trade
@@ -86,7 +91,7 @@ internal sealed class MatchingEngine
     {
         var reg = _orderBook.GetOrAdd(sell.Instrument, () => new PriceLevels());
         
-        while (!sell.FulFilled)
+        while (!sell.Fulfilled)
         {
             // Match search
             if (reg.TryGetBestBid(out var bid))
@@ -101,10 +106,13 @@ internal sealed class MatchingEngine
                     {
                         // Trades all the bid quantity, order not fulfilled
                         tradeQuantity = bid.RemainingQuantity;
-                        sell.RemainingQuantity -= bid.RemainingQuantity;
+                        sell.TradeQuantity(bid.RemainingQuantity);
+                        //sell.RemainingQuantity -= bid.RemainingQuantity;
                         
                         // Buy Order in the book closed
-                        bid.RemainingQuantity = 0;
+                        bid.TradeQuantity(bid.RemainingQuantity);
+                        // bid.RemainingQuantity = 0;
+                        //bid.State = OrderState.Completed;
                         
                         // Remove from the book
                         _orderBook.RemoveBuy(bid);
@@ -113,10 +121,13 @@ internal sealed class MatchingEngine
                     {
                         // Incoming order fulfilled
                         tradeQuantity = sell.RemainingQuantity;
-                        bid.RemainingQuantity -= sell.RemainingQuantity;
+                        bid.TradeQuantity(sell.RemainingQuantity);
+                        //bid.RemainingQuantity -= sell.RemainingQuantity;
                         
                         // Order closed
-                        sell.RemainingQuantity = 0;
+                        sell.TradeQuantity(sell.RemainingQuantity);
+                        //sell.RemainingQuantity = 0;
+                        //sell.State = OrderState.Completed;
                     }
 
                     var trade = new Trade

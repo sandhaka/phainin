@@ -11,9 +11,8 @@ public sealed class Order
     public required string Instrument { get; init; }
     public decimal Price { get; init; } = 1;
     public int OriginalQuantity { get; init; }
-    public int RemainingQuantity { get; internal set; }
-    
-    public OrderState State { get; internal set; }
+    public int RemainingQuantity { get; private set; }
+    public OrderState State { get; internal set; } = OrderState.New;
     public long SequenceNumber { get; internal set; }
 
     public bool Validate()
@@ -28,7 +27,20 @@ public sealed class Order
         return valid;
     }
 
-    public bool FulFilled => RemainingQuantity == 0;
+    public bool Fulfilled => RemainingQuantity == 0;
+
+    public void Open()
+    {
+        RemainingQuantity = OriginalQuantity;
+        State = OrderState.Active;
+    }
+    
+    public void TradeQuantity(int trade)
+    {
+        RemainingQuantity -= trade;
+        if (RemainingQuantity == 0)
+            State = OrderState.Completed;
+    }
     
     public override string ToString() =>
         $"{OrderId}, {VenueCode}, {ActionType}, {Instrument}, {Price}, {OriginalQuantity}, {RemainingQuantity}, {State}";
